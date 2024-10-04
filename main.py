@@ -3,9 +3,7 @@ from inference import get_model
 import cv2
 import utils
 import numpy as np
-
-# Set environment variable to suppress TensorFlow logging
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+import onnxruntime as ort
 
 model = get_model("argus-2/1", "FpwK2zTgVB5qgZJDUM7u")
 
@@ -14,7 +12,7 @@ os.system("cls")
 counter = 1
 cards = ["", "A", "2", "3", "4", "5", "6", "7", "8", "9", "J", "Q", "K"]
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("./tapei.mp4")
 while cap.isOpened():
     ret, frame = cap.read()
 
@@ -24,9 +22,7 @@ while cap.isOpened():
         print("Unable to get image")
         break
 
-    delaer = frame[0:300, :]
-    player = frame[310:, :]
-    key = cv2.waitKey(1)
+    key = cv2.waitKey(2)
 
 
     annotated_image = np.array(frame.copy())
@@ -47,12 +43,7 @@ while cap.isOpened():
     elif key == ord("s"):
         counter += 1
 
-    # Dealer
-    resultDealer = model.infer(frame, confidence=0.10)
-    resDealer = utils.show_results(results=resultDealer, image=frame, card=cards[int(counter % len(cards))])
+    
+    resultDealer = model.infer(frame, confidence=0.10)[-1]
+    resDealer = utils.show_results(result=resultDealer, image=frame, card=cards[int(counter % len(cards))])
     cv2.imshow("Result", resDealer)
-
-    # Player
-    # resultPlayer = model.infer(player, confidence=0.10)
-    # resPlayer = utils.show_results(results=resultPlayer, image=player)
-    # cv2.imshow("Player", resPlayer)
